@@ -10,25 +10,30 @@ def run():
 	"data_path" : "./Data/",
 	"verbose" : True,
 	"random_state" : 42,
-	"years_for_test": 2,
+	"SolRad_threshold": 5,
+	"years_for_test": 5,
+	"strategy_for_zeros": 'row_mean', # "row_mean" , "drop_column"
+	"how_to_compute_daily_avg": 'without_zeros', # "with_zeros" , "without_zeros"
+	"dealing_with_zeros_whole_dataset": True,
+
 
 	}
 
-	#Step1-Preprocessing:
+	# Step1-Preprocessing:
 
 	df = load_data(**settings)
 	df = rename_drop_cols(df, **settings)
 	df = groupby_date(df, **settings)
 	df = make_datetime_cols(df, **settings)
 
-	X_train, X_test, y_train, y_test = split_data(df, **settings)
+	X_train, X_test, y_train, y_test = split_data_and_deal_with_zeros(df, **settings)
 	X_train, X_test = scaler(X_train, X_test, **settings)
 
 
-	#Step2-Training:
-	# 1-2-1: CatBoost
+	# Step2-Training:
+	# 2-1: CatBoost
 
-	cb_settings = {'iterations' : 2,
+	cb_settings = {'iterations' : 500,
 					'learning_rate' : 0.1,
 					'depth' : 9,
 					'l2_leaf_reg' : 0.001,
@@ -47,7 +52,7 @@ def run():
 	myCatBoostModel._construct_model()
 	myCatBoostModel.run(X_train, X_test, y_train, y_test)
 
-	# 1-2-2: RandomForest
+	# 2-2: RandomForest
 
 	# rf_settings = {'n_estimators' : 100,
 	# 				'max_depth' : 200,
@@ -65,7 +70,7 @@ def run():
 	# myRFModel._construct_model()
 	# myRFModel.run(X_train, X_test, y_train, y_test)
 
-	# 1-2-3: DNN
+	# 2-3: DNN
 
 	# DNN_settings = {'DNN_model_directory' : './SavedModels/DNN',
 	# 		  'layers' : [10,30,20],
@@ -96,7 +101,7 @@ def run():
 	# myDNNModel._construct_model(df_all)
 	# myDNNModel.run(X_train, X_test, y_train, y_test)
 
-	# 1-2-4: LSTM
+	# 2-4: LSTM
 
 	# LSTM_settings = {'LSTM_model_directory' : './SavedModels',
 	# 		  'layers' : [15,30],
@@ -128,7 +133,7 @@ def run():
 	# myLSTMModel._construct_model(df_all, X_train)
 	# myLSTMModel.run(X_train, X_test, y_train, y_test)
 
-	# 1-2-5: GRU
+	# 2-5: GRU
 
 	# GRU_settings = {'GRU_model_directory' : './SavedModels',
 	# 		  'layers' : [15,30],
