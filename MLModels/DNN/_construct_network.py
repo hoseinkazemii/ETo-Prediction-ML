@@ -10,7 +10,6 @@ def _construct_network(input_dim, **params):
 	output_dim = params.get('output_dim')
 	input_activation_func = params.get('input_activation_func')
 	hidden_activation_func = params.get('hidden_activation_func')
-	final_activation_func = params.get('final_activation_func')
 	regul_type = params.get('regul_type')
 	act_regul_type = params.get('act_regul_type')
 	reg_param = params.get('reg_param')
@@ -37,11 +36,11 @@ def _construct_network(input_dim, **params):
 						activity_regularizer = actl(reg_param)))
 		model.add(Dropout(dropout))
 	
-	model.add(Dense(output_dim, activation = final_activation_func))
+	model.add(Dense(output_dim))
 	 
 	# Compile model
 	model.compile(loss=loss_func,
 				  optimizer=optimizer,
-				  metrics=['accuracy'])
+				  metrics=['mean_squared_error'])
 
 	return model

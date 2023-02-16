@@ -15,7 +15,9 @@ def run():
 	"strategy_for_zeros": 'row_mean', # "row_mean" , "drop_column"
 	"how_to_compute_daily_avg": 'without_zeros', # "with_zeros" , "without_zeros"
 	"dealing_with_zeros_whole_dataset": True,
-
+	"scaling_method": 'robust', # "min_max" , "standard" , "robust"
+	"outlier_quantile": 0.99,
+	"correlation_method":'pearson_', # "mutual_info" , "pearson_"
 
 	}
 
@@ -33,24 +35,24 @@ def run():
 	# Step2-Training:
 	# 2-1: CatBoost
 
-	cb_settings = {'iterations' : 500,
-					'learning_rate' : 0.1,
-					'depth' : 9,
-					'l2_leaf_reg' : 0.001,
-					'loss_function' : 'RMSE',
-					'allow_writing_files' : False,
-					'eval_metric' : "RMSE",
-					'task_type' : 'CPU',
-					'verbose_cb' : 400,
-					'boosting_type' : 'Ordered',
-					'thread_count' : -1,
-					"model_name" : "CatBoost",}
+	# cb_settings = {'iterations' : 800,
+	# 				'learning_rate' : 0.05,
+	# 				'depth' : 9,
+	# 				'l2_leaf_reg' : 0.001,
+	# 				'loss_function' : 'RMSE',
+	# 				'allow_writing_files' : False,
+	# 				'eval_metric' : "RMSE",
+	# 				'task_type' : 'CPU',
+	# 				'verbose_cb' : 400,
+	# 				'boosting_type' : 'Ordered',
+	# 				'thread_count' : -1,
+	# 				"model_name" : "CatBoost",}
 
 
-	myCatBoostModel = CatBoostModel(**{**cb_settings,
-		                                          **settings})
-	myCatBoostModel._construct_model()
-	myCatBoostModel.run(X_train, X_test, y_train, y_test)
+	# myCatBoostModel = CatBoostModel(**{**cb_settings,
+	# 	                                          **settings})
+	# myCatBoostModel._construct_model()
+	# myCatBoostModel.run(X_train, X_test, y_train, y_test)
 
 	# 2-2: RandomForest
 
@@ -59,11 +61,11 @@ def run():
 	# 				'min_samples_split' : 2,
 	# 				'min_samples_leaf' : 1,
 	# 				'max_features' : 'auto',
-	# 				'should_cross_val' : False,
 	# 				'n_jobs' : -1,
 	# 				"verbose_rf" : 2,
 	# 				"model_name" : "RF",
-	# 				"approach" : "AllClimates",}
+
+	# 				}
 
 	# myRFModel = RFModel(**{**rf_settings,
 	# 									**settings})
@@ -74,10 +76,9 @@ def run():
 
 	# DNN_settings = {'DNN_model_directory' : './SavedModels/DNN',
 	# 		  'layers' : [10,30,20],
-	# 		  'input_activation_func' : 'tanh',
+	# 		  'input_activation_func' : 'relu',
 	# 		  'hidden_activation_func' : 'relu',
-	# 		  'final_activation_func' : 'sigmoid',
-	# 		  'loss_func' : 'binary_crossentropy',
+	# 		  'loss_func' : 'mean_squared_error',
 	# 		  'epochs' : 2,
 	# 		  'min_delta' : 0.00001,
 	# 		  'patience' : 10,
@@ -93,12 +94,12 @@ def run():
 	# 		  'split_size' : 0.2,
 	# 		  'output_dim' : 1,
 	# 		  'warm_up' : False,
-	# 		  'model_name' : 'DNN',
-	# 		  "approach" : "AllClimates",}
+	# 		  'model_name' : 'DNN',}
 
+			  
 	# myDNNModel = DNNModel(**{**DNN_settings,
 	# 										**settings})
-	# myDNNModel._construct_model(df_all)
+	# myDNNModel._construct_model(X_train)
 	# myDNNModel.run(X_train, X_test, y_train, y_test)
 
 	# 2-4: LSTM
@@ -124,8 +125,7 @@ def run():
 	# 		  'split_size' : 0.2,
 	# 		  'output_dim' : 1,
 	# 		  'warm_up' : False,
-	# 		  'model_name' : 'LSTM',
-	# 		  "approach" : "AllClimates",}
+	# 		  'model_name' : 'LSTM',}
 
 	# myLSTMModel = LSTMModel(**{**LSTM_settings,
 	# 										**settings})
@@ -156,8 +156,7 @@ def run():
 	# 		  'split_size' : 0.2,
 	# 		  'output_dim' : 1,
 	# 		  'warm_up' : False,
-	# 		  'model_name' : 'GRU',
-	# 		  "approach" : "AllClimates",}
+	# 		  'model_name' : 'GRU',}
 
 	# myGRUModel = GRUModel(**{**GRU_settings,
 	# 										**settings})

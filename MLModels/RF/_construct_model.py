@@ -1,4 +1,4 @@
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestRegressor
 
 def _construct_model(**params):
 
@@ -10,7 +10,7 @@ def _construct_model(**params):
 	n_jobs = params.get("n_jobs")
 	n_estimators = params.get("n_estimators")
 
-	model = RandomForestClassifier(n_estimators=n_estimators,
+	model = RandomForestRegressor(n_estimators=n_estimators,
 								max_depth=max_depth,
                         		min_samples_split=min_samples_split,
                         		min_samples_leaf=min_samples_leaf,

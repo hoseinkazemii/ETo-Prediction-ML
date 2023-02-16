@@ -3,12 +3,12 @@ from ._construct_network import _construct_network
 
 from utils import Logger
 
-def _construct_model(df, **params):
+def _construct_model(X_train, **params):
 
 	warm_up = params.get('warm_up')
 	log = params.get("log")
 
-	input_dim = len(df.columns) - 1
+	input_dim = X_train.shape[1]
 
 	constructed = False
 	if warm_up:
