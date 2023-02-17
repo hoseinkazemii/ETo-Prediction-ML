@@ -5,7 +5,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.regularizers import l1, l2
 
 
-def _construct_network(input_dim, X_train, **params):
+def _construct_network(X_train, **params):
 
 	layers = params.get('layers')
 	output_dim = params.get('output_dim')
@@ -27,7 +27,7 @@ def _construct_network(input_dim, X_train, **params):
 	
 	model.add(LSTM(layers[0],
 					input_shape = (X_train.shape[1], X_train.shape[2]),
-					activation = input_activation_func,
+					# activation = input_activation_func,
 					kernel_regularizer = l(reg_param),
 					activity_regularizer = actl(reg_param),
 					return_sequences = True))
@@ -59,6 +59,6 @@ def _construct_network(input_dim, X_train, **params):
 	# Compile model
 	model.compile(loss=loss_func,
 				  optimizer=optimizer,
-				  metrics=['accuracy'])
+				  metrics=['mean_squared_error'])
 
 	return model

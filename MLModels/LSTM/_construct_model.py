@@ -3,12 +3,11 @@ from ._construct_network import _construct_network
 
 from utils import Logger
 
-def _construct_model(df, X_train, **params):
+def _construct_model(X_train, **params):
 
 	warm_up = params.get('warm_up')
 	log = params.get("log")
 
-	input_dim = len(df.columns) - 1
 
 	constructed = False
 	if warm_up:
@@ -21,7 +20,7 @@ def _construct_model(df, X_train, **params):
 
 	if not constructed:
 		# Creating the structure of the neural network
-		model = _construct_network(input_dim, X_train, **params)
+		model = _construct_network(X_train, **params)
 		
 		# A summary of the model
 		stringlist = []

@@ -6,7 +6,6 @@ def _log_hyperparameters(**params):
 	layers = params.get('layers')
 	input_activation_func = params.get('input_activation_func')
 	hidden_activation_func = params.get('hidden_activation_func')
-	final_activation_func = params.get('final_activation_func')
 	loss_func = params.get('loss_func')
 	epochs = params.get('epochs')
 	min_delta = params.get('min_delta')
@@ -25,7 +24,6 @@ def _log_hyperparameters(**params):
 	log.info(pprint.pformat({'layers': layers,
 							'input_activation_func': input_activation_func,
 							'hidden_activation_func': hidden_activation_func,
-							'final_activation_func': final_activation_func,
 							'loss_func': loss_func,
 							'epochs': epochs,
 							'min_delta': min_delta,

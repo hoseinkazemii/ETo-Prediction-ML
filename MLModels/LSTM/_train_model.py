@@ -1,7 +1,7 @@
 from ._get_call_backs import _get_call_backs
 from ._save_model import _save_model
 
-from utils import evaluate_classification
+from utils import evaluate_regression
 from utils import Logger
 
 import numpy as np
@@ -14,7 +14,9 @@ def train_model(X_train, X_test, y_train, y_test, **params):
 	log = params.get("log")
 	model = params.get('model')
 	model_name = params.get('model_name')
-	verbose = params.get('verbose')	
+	verbose = params.get('verbose')
+	report_directory = params.get("report_directory")
+
 
 	call_back_list = _get_call_backs(**params)
 
@@ -43,11 +45,12 @@ def train_model(X_train, X_test, y_train, y_test, **params):
 	y_pred_train = np.round(model.predict(X_train))
 	y_pred_test = np.round(model.predict(X_test))
 
-	evaluate_classification(
+	evaluate_regression(
 		[f'OnTrain', X_train, y_train, y_pred_train],
 		[f'OnTest', X_test, y_test, y_pred_test],
 		model = model,
 		model_name = model_name,
-		logger = log)
+		logger = log,
+		report_directory = report_directory)
 
 	return history
