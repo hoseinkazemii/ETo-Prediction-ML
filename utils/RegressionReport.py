@@ -40,7 +40,7 @@ def evaluate_regression(*args, **params):
 		label, x, y_true, y_pred = ls
 		
 		# Saving into csv file
-		if not model_name == "DNN":
+		if (not model_name == "DNN") and (not model_name == "LSTM"):
 			report = pd.DataFrame()
 			report['Actual'] = y_true
 			report['Predicted'] = y_pred
@@ -48,19 +48,28 @@ def evaluate_regression(*args, **params):
 
 			report.to_csv(report_directory + "/" + f'{model_name}-{label}.csv')
 
-		if model_name == "DNN":
-			corcoef_ = CorCoef(y_true, np.ravel(y_pred))
-			r2_ = R2(y_true, np.ravel(y_pred))
-			mse_ = MSE(y_true, np.ravel(y_pred))
-			mae_ = MAE(y_true, np.ravel(y_pred))
-			# mape_ = MAPE(y_true, list(np.ravel(y_pred)))
-			
-		else:
 			corcoef_ = CorCoef(y_true, y_pred)
 			r2_ = R2(y_true, y_pred)
 			mse_ = MSE(y_true, y_pred)
 			mae_ = MAE(y_true, y_pred)
 			# mape_ = MAPE(y_true, list(y_pred))
+
+
+		elif model_name == "DNN":
+			corcoef_ = CorCoef(y_true, np.ravel(y_pred))
+			r2_ = R2(y_true, np.ravel(y_pred))
+			mse_ = MSE(y_true, np.ravel(y_pred))
+			mae_ = MAE(y_true, np.ravel(y_pred))
+			# mape_ = MAPE(y_true, list(np.ravel(y_pred)))
+		
+		elif model_name == "LSTM":
+			y_pred = np.reshape(y_pred, (y_pred.shape[0],))
+			corcoef_ = CorCoef(y_true, y_pred)
+			r2_ = R2(y_true, y_pred)
+			mse_ = MSE(y_true, y_pred)
+			mae_ = MAE(y_true, y_pred)
+			# mape_ = MAPE(y_true, list(y_pred))
+
 		
 		# Reporting the quantitative results
 		report_str = f"{label}, CorCoef= {corcoef_:.4f}, "\

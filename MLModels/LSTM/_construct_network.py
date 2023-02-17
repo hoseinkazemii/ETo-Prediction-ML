@@ -12,6 +12,7 @@ def _construct_network(X_train, **params):
 	input_activation_func = params.get('input_activation_func')
 	hidden_activation_func = params.get('hidden_activation_func')
 	final_activation_func = params.get('final_activation_func')
+	stateful = params.get('stateful')
 	regul_type = params.get('regul_type')
 	act_regul_type = params.get('act_regul_type')
 	reg_param = params.get('reg_param')
@@ -28,6 +29,7 @@ def _construct_network(X_train, **params):
 	model.add(LSTM(layers[0],
 					input_shape = (X_train.shape[1], X_train.shape[2]),
 					# activation = input_activation_func,
+					stateful = stateful,
 					kernel_regularizer = l(reg_param),
 					activity_regularizer = actl(reg_param),
 					return_sequences = True))

@@ -9,7 +9,9 @@ def split_data_and_deal_with_zeros(df, **params):
 	dealing_with_zeros_whole_dataset = params.get("dealing_with_zeros_whole_dataset")
 	how_to_compute_daily_avg = params.get("how_to_compute_daily_avg")
 	outlier_quantile = params.get("outlier_quantile")
+	dropping_cols_strategy = params.get("dropping_cols_strategy")
 	correlation_method = params.get("correlation_method")
+	SolRad_daily = params.get("SolRad_daily")
 
 	if verbose:
 		if strategy_for_zeros == 'row_mean':
@@ -18,51 +20,66 @@ def split_data_and_deal_with_zeros(df, **params):
 			print("splitting data, dropping columns with at least one zero for hourly SolRad...")
 
 
-	# df.drop(columns=['Day','Month','Year'], axis=1).to_csv('./EDA/final_dataset_for_training.csv', index=False)
+	# df.drop(columns=['Day','Month'], axis=1).to_csv('./EDA/final_dataset_for_training.csv', index=False)
 	# raise ValueError
 
 
-	if dealing_with_zeros_whole_dataset:
 
-		if how_to_compute_daily_avg == 'without_zeros':
-			df[df.drop(columns=['ETo_sum_day'], axis=1) == 0] = np.nan
-			df['SolRad_daily_avg'] = df.drop(columns=['ETo_sum_day','Day','Month','Year'], axis=1).mean(axis=1) #Need to be discussed: We can also do this for the whole dataset 
-		
-		elif how_to_compute_daily_avg == 'with_zeros':
-			df['SolRad_daily_avg'] = df.iloc[:, 0:24].mean(axis=1)
-			df[df.drop(columns=['ETo_sum_day'], axis=1) == 0] = np.nan
-
-		for col in df.columns:		
-			df[col].fillna(df['SolRad_daily_avg'], inplace=True)
+	if SolRad_daily:
+		df['SolRad_daily_avg'] = df.iloc[:,:23].sum(axis=1)/24
+		df = df[['SolRad_daily_avg','ETo_sum_day','Day','Month','Year']]
 
 
-		df.drop(columns=['SolRad_daily_avg'], axis=1, inplace=True)
+	elif not SolRad_daily:
+		if dealing_with_zeros_whole_dataset:
+
+			if how_to_compute_daily_avg == 'without_zeros':
+				df[df.drop(columns=['ETo_sum_day'], axis=1) == 0] = np.nan
+				df['SolRad_daily_avg'] = df.drop(columns=['ETo_sum_day','Day','Month','Year'], axis=1).mean(axis=1)
+			
+			elif how_to_compute_daily_avg == 'with_zeros':
+				df['SolRad_daily_avg'] = df.iloc[:, 0:24].mean(axis=1)
+				df[df.drop(columns=['ETo_sum_day'], axis=1) == 0] = np.nan
+
+			for col in df.columns:		
+				df[col].fillna(df['SolRad_daily_avg'], inplace=True)
 
 
-		# #Drop VIF > 10:
-		# df.drop(columns=['100.0','200.0','300.0','400.0','500.0',
-  #                '800.0','900.0','1000.0','1100.0',
-  #                '1200.0','1300.0','1400.0','1500.0','1600.0',
-  #                '1700.0','2100.0','2200.0','2300.0','2400.0'], axis=1, inplace=True)
+			df.drop(columns=['SolRad_daily_avg'], axis=1, inplace=True)
 
 
-		#Keep Features with the highest correlations:
-		if correlation_method == 'pearson_':
-			df.drop(columns=['100.0','200.0','300.0','400.0','500.0',
-	                 '600.0','700.0','1200.0',
-	                 '1300.0','1400.0','1700.0','1800.0',
-	                 '1900.0','2000.0','2100.0','2200.0','2300.0','2400.0'],
-	                  axis=1, inplace=True)
+			if dropping_cols_strategy=='feature_importance':
 
-		elif correlation_method == 'mutual_info':
-			df.drop(columns=['100.0','200.0','300.0','400.0','500.0',
-	                 '600.0','700.0',
-	                 '1400.0','1500.0','1600.0','1700.0','1800.0',
-	                 '1900.0','2000.0','2100.0','2200.0','2300.0','2400.0'],
-	                  axis=1, inplace=True)			
+		  		#Keep Features with highest Feature Importance:
+				df.drop(columns=['100.0','200.0','300.0','400.0','500.0',
+		                 '600.0','700.0','1200.0',
+		                 '1400.0','1500.0','1600.0','1700.0','1800.0',
+		                 '2000.0','2100.0','2200.0','2300.0','2400.0'],
+		                  axis=1, inplace=True)	
+				
+
+			elif dropping_cols_strategy=='correlation':
+
+	  			#Keep Features with highest correlation with ETo_sum_day
+				if correlation_method == 'pearson_':
+					df.drop(columns=['100.0','200.0','300.0','400.0','500.0',
+			                 '600.0','700.0','1200.0',
+			                 '1300.0','1400.0','1700.0','1800.0',
+			                 '1900.0','2000.0','2100.0','2200.0','2300.0','2400.0'],
+			                  axis=1, inplace=True)
+
+				elif correlation_method == 'mutual_info':
+					df.drop(columns=['100.0','200.0','300.0','400.0','500.0',
+			                 '600.0','700.0',
+			                 '1400.0','1500.0','1600.0','1700.0','1800.0',
+			                 '1900.0','2000.0','2100.0','2200.0','2300.0','2400.0'],
+			                  axis=1, inplace=True)			
 
 
+	#training dataset
 	df_train = df[df['Year'] <= df.Year.max() - years_for_test]
+
+	#dropping outliers
 	df_train = df_train[df_train['ETo_sum_day'] <= df_train['ETo_sum_day'].quantile(outlier_quantile)]
 
 

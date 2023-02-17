@@ -8,6 +8,7 @@ def _log_hyperparameters(**params):
 	hidden_activation_func = params.get('hidden_activation_func')
 	final_activation_func = params.get('final_activation_func')
 	loss_func = params.get('loss_func')
+	stateful = params.get('stateful')
 	epochs = params.get('epochs')
 	min_delta = params.get('min_delta')
 	patience = params.get('patience')
