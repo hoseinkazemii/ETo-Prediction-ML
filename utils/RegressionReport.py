@@ -36,6 +36,9 @@ def evaluate_regression(*args, **params):
 	logger = params.get('logger')
 
 
+	# Counter is for returning "OnTest" "mse_"s, which are the output of the optimize model for optuna optimizer
+	counter = 0
+
 	for ls in args:
 		label, x, y_true, y_pred = ls
 		
@@ -78,3 +81,7 @@ def evaluate_regression(*args, **params):
 		
 		logger.info(report_str)
 		print(report_str)
+
+		counter += 1
+		if counter % 2 ==0:
+			return mse_

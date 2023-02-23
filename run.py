@@ -1,6 +1,5 @@
 import warnings
 warnings.filterwarnings("ignore")
-import pandas as pd
 
 from Preprocessing import *
 from MLModels import *
@@ -34,27 +33,38 @@ def run():
 	X_train, X_test = scaler(X_train, X_test, y_train, y_test, **settings)
 
 
+
 	# Step2-Training:
 	# 2-1: CatBoost
 
-	cb_settings = {'iterations' : 800,
-					'learning_rate' : 0.05,
-					'depth' : 9,
+	cb_settings = {'iterations' : [100, 200], #[700, 1200], # [low, high]
+					'learning_rate' : [0.001, 0.1], # Same as 'iterations'
+					'depth' : [4,5], #[9,10],
+					'boosting_type' : ['Ordered', 'Plain'],
 					'l2_leaf_reg' : 0.001,
 					'loss_function' : 'RMSE',
 					'allow_writing_files' : False,
 					'eval_metric' : "RMSE",
 					'task_type' : 'CPU',
 					'verbose_cb' : 400,
-					'boosting_type' : 'Ordered',
 					'thread_count' : -1,
 					"model_name" : "CatBoost",}
 
 
 	myCatBoostModel = CatBoostModel(**{**cb_settings,
 		                                          **settings})
-	myCatBoostModel._construct_model()
-	myCatBoostModel.run(X_train, X_test, y_train, y_test)
+
+
+	# # Training the model
+	# myCatBoostModel._construct_model(X_train, X_test, y_train, y_test)
+	# myCatBoostModel.run(X_train, X_test, y_train, y_test)
+
+
+	# Finding the best hyperparameters:
+	myCatBoostModel._input_X_y(X_train, X_test, y_train, y_test)
+	myCatBoostModel.optimize()
+
+
 
 	# 2-2: RandomForest
 
