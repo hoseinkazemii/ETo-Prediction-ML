@@ -1,5 +1,6 @@
 import numpy as np
-from sklearn.impute import SimpleImputer
+
+from ._cyclic_datetime_julian_date import _cyclic_datetime_julian_date
 
 
 def split_data_and_deal_with_zeros(df, **params):
@@ -27,7 +28,8 @@ def split_data_and_deal_with_zeros(df, **params):
 
 	if SolRad_daily:
 		df['SolRad_daily_avg'] = df.iloc[:,:23].sum(axis=1)/24
-		df = df[['SolRad_daily_avg','ETo_sum_day','Day','Month','Year']]
+		df = df[['SolRad_daily_avg','ETo_sum_day','Jul','Day','Month','Year']]
+		df = _cyclic_datetime_julian_date(df, 'Jul')
 
 
 	elif not SolRad_daily:
@@ -73,7 +75,18 @@ def split_data_and_deal_with_zeros(df, **params):
 			                 '600.0','700.0',
 			                 '1400.0','1500.0','1600.0','1700.0','1800.0',
 			                 '1900.0','2000.0','2100.0','2200.0','2300.0','2400.0'],
-			                  axis=1, inplace=True)			
+			                  axis=1, inplace=True)
+
+
+				elif correlation_method == 'spearman_':
+					# This is same as 'mutual_info' correlation
+					df.drop(columns=['100.0','200.0','300.0','400.0','500.0',
+			                 '600.0','700.0',
+			                 '1400.0','1500.0','1600.0','1700.0','1800.0',
+			                 '1900.0','2000.0','2100.0','2200.0','2300.0','2400.0'],
+			                  axis=1, inplace=True)	
+
+
 
 
 	#training dataset
@@ -107,8 +120,14 @@ def split_data_and_deal_with_zeros(df, **params):
 
 	df_test = df[df['Year'] > df.Year.max() - years_for_test]
 
-	X_train = df_train.drop(columns=['ETo_sum_day','Day','Month','Year'], axis=1)
-	X_test = df_test.drop(columns=['ETo_sum_day','Day','Month','Year'], axis=1)
+
+	if SolRad_daily:	
+		X_train = df_train.drop(columns=['ETo_sum_day','Day','Month','Year','Jul'], axis=1)
+		X_test = df_test.drop(columns=['ETo_sum_day','Day','Month','Year','Jul'], axis=1)
+
+	else:
+		X_train = df_train.drop(columns=['ETo_sum_day','Day','Month','Year'], axis=1)
+		X_test = df_test.drop(columns=['ETo_sum_day','Day','Month','Year'], axis=1)
 
 	y_train = df_train['ETo_sum_day']
 	y_test = df_test['ETo_sum_day']

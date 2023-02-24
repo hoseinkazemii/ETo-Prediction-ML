@@ -17,8 +17,8 @@ def run():
 	"dealing_with_zeros_whole_dataset": True,
 	"scaling_method": 'robust', # "min_max" , "standard" , "robust"
 	"outlier_quantile": 0.99,
-	"correlation_method":'mutual_info', # "mutual_info" , "pearson_"
-	"SolRad_daily":False,
+	"correlation_method":'mutual_info', # "mutual_info" , "pearson_" , "spearman_"
+	"SolRad_daily":True,
 
 	}
 
@@ -37,10 +37,10 @@ def run():
 	# Step2-Training:
 	# 2-1: CatBoost
 
-	cb_settings = {'iterations' : [100, 200], #[700, 1200], # [low, high]
-					'learning_rate' : [0.001, 0.1], # Same as 'iterations'
-					'depth' : [4,5], #[9,10],
-					'boosting_type' : ['Ordered', 'Plain'],
+	cb_settings = {'iterations' : 100, #[100, 200], #[700, 1200], # [low, high]
+					'learning_rate' : 0.001, #[0.001, 0.1], # Same as 'iterations'
+					'depth' : 4, #[4,5], #[9,10],
+					'boosting_type' : 'Ordered', #['Ordered', 'Plain'],
 					'l2_leaf_reg' : 0.001,
 					'loss_function' : 'RMSE',
 					'allow_writing_files' : False,
@@ -55,14 +55,14 @@ def run():
 		                                          **settings})
 
 
-	# # Training the model
-	# myCatBoostModel._construct_model(X_train, X_test, y_train, y_test)
-	# myCatBoostModel.run(X_train, X_test, y_train, y_test)
+	# Training the model
+	myCatBoostModel._construct_model(X_train, X_test, y_train, y_test)
+	myCatBoostModel.run(X_train, X_test, y_train, y_test)
 
 
 	# Finding the best hyperparameters:
-	myCatBoostModel._input_X_y(X_train, X_test, y_train, y_test)
-	myCatBoostModel.optimize()
+	# myCatBoostModel._input_X_y(X_train, X_test, y_train, y_test)
+	# myCatBoostModel.optimize(n_trials=100)
 
 
 

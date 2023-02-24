@@ -20,12 +20,16 @@ class CatBoostModel(BaseMLModel):
 	def _input_X_y(self, X_train, X_test, y_train, y_test):
 		self.X_train, self.X_test, self.y_train, self.y_test = X_train, X_test, y_train, y_test
 
-	def run(self, trial):
+	def run(self, X_train, X_test, y_train, y_test):
+		self._input_X_y(X_train, X_test, y_train, y_test)
+		train_model(**self.__dict__)
+
+	def optimize_func(self, trial):
 		self.model = _construct_model_for_optimizer(trial, **self.__dict__)
 		self.mean_squared_error = train_model(**self.__dict__)
 		return self.mean_squared_error
 
-	def optimize(self, n_trials=5):
+	def optimize(self, n_trials):
 		study = optuna.create_study(direction='minimize')
-		study.optimize(self.run, n_trials=5)    
+		study.optimize(self.optimize_func, n_trials)    
 		return study.best_trial
