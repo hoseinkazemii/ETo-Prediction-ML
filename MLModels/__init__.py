@@ -3,4 +3,5 @@ from .RFModel import RFModel
 from .CatBoostModel import CatBoostModel
 from .XGBoostModel import XGBoostModel
 from .LassoModel import LassoModel
+from .GRUModel import GRUModel
 # from .LSTMModel import LSTMModel

@@ -42,8 +42,8 @@ def train_model(X_train, X_test, y_train, y_test, **params):
 
 	_save_model(**params)
 
-	y_pred_train = np.round(model.predict(X_train))
-	y_pred_test = np.round(model.predict(X_test))
+	y_pred_train = model.predict(X_train)
+	y_pred_test = model.predict(X_test)
 
 	evaluate_regression(
 		[f'OnTrain', X_train, y_train, y_pred_train],

@@ -43,7 +43,7 @@ def evaluate_regression(*args, **params):
 		label, x, y_true, y_pred = ls
 		
 		# Saving into csv file
-		if (not model_name == "DNN") and (not model_name == "LSTM"):
+		if (not model_name == "DNN") and (not model_name == "LSTM") and (not model_name == "GRU"):
 			report = pd.DataFrame()
 			report['Actual'] = y_true
 			report['Predicted'] = y_pred
@@ -65,7 +65,7 @@ def evaluate_regression(*args, **params):
 			mae_ = MAE(y_true, np.ravel(y_pred))
 			# mape_ = MAPE(y_true, list(np.ravel(y_pred)))
 		
-		elif model_name == "LSTM":
+		elif (model_name == "LSTM") or (model_name == "GRU"):
 			y_pred = np.reshape(y_pred, (y_pred.shape[0],))
 			corcoef_ = CorCoef(y_true, y_pred)
 			r2_ = R2(y_true, y_pred)

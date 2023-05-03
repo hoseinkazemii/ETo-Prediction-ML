@@ -6,6 +6,7 @@ from tensorflow.keras.regularizers import l1, l2
 
 
 def _construct_network(input_dim, **params):
+	
 	layers = params.get('layers')
 	output_dim = params.get('output_dim')
 	input_activation_func = params.get('input_activation_func')

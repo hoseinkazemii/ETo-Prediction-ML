@@ -3,44 +3,51 @@ warnings.filterwarnings("ignore")
 
 from Preprocessing import *
 from MLModels import *
+# from EmpiricalModels import *
 
 def run():
 	settings = {
-	"data_path" : "./Data/",
+	"data_path_hourly" : "./Data/For_The_Final_Run/Train_Set/",
+	"data_path_daily" : "./Data/For_The_Final_Run/Train_Set/",
+	"data_path_hourly_for_run" : "./Data/Final_Dataset/Hourly_Run/",
+	"data_path_daily_for_run" : "./Data/Final_Dataset/Daily_Run/",
 	"verbose" : True,
 	"random_state" : 42,
-	"SolRad_threshold": 5,
+	"SolRad_threshold": 0,
+	"train_test_strategy": "station_based", # "yearly" , "station_based"
+	"training_stations": [2,5,6,7,12,13,15,35,39,41,43,44,47,52,64,68,70,71,\
+  						  75,77,78,80,83,84,88,90,91,99,104,105,107,113,114,117,124,126,\
+						  129,131,135,136,140,143,144,146,147,148,150,152,153,157,158,160,163,165,\
+						  170,171,173,174,178,179,182,184,187,191,192,193,194,195,197,198,199,200,\
+ 						  202,204,205,206,207,208,209,210,211,212,213,214,215,216,218,219,220,221,\
+						  222,223,224,225,226,227,228,229,231,237,239,242,244,245,247,248,249,250,\
+						  251,253,254,258,259,260],
+	"test_stations":[87,103,106,116,125,217,232,236,240,241,243,252,257,261,262,263,264],
 	"years_for_test": 5,
 	"strategy_for_zeros": 'row_mean', # "row_mean" , "drop_column"
 	"dropping_cols_strategy": 'feature_importance', # "correlation" , "feature_importance"
+	"correlation_method":'mutual_info', # "mutual_info" , "pearson_" , "spearman_"
 	"how_to_compute_daily_avg": 'without_zeros', # "with_zeros" , "without_zeros"
 	"dealing_with_zeros_whole_dataset": True,
 	"scaling_method": 'robust', # "min_max" , "standard" , "robust"
-	"outlier_quantile": 0.99,
-	"correlation_method":'mutual_info', # "mutual_info" , "pearson_" , "spearman_"
-	"SolRad_daily":True,
+	"outlier_quantile": 0.98,
+	"SolRad_daily": False,
 
 	}
 
 	# Step1-Preprocessing:
 
-	df = load_data(**settings)
-	df = rename_drop_cols(df, **settings)
-	df = groupby_date(df, **settings)
-	df = make_datetime_cols(df, **settings)
-
-	X_train, X_test, y_train, y_test = split_data_and_deal_with_zeros(df, **settings)
-	X_train, X_test = scaler(X_train, X_test, y_train, y_test, **settings)
-
+	# myData = PreprocessData()
+	# myData.preprocess_and_save_data(**settings)
 
 
 	# Step2-Training:
 	# 2-1: CatBoost
 
-	cb_settings = {'iterations' : 100, #[100, 200], #[700, 1200], # [low, high]
-					'learning_rate' : 0.001, #[0.001, 0.1], # Same as 'iterations'
-					'depth' : 4, #[4,5], #[9,10],
-					'boosting_type' : 'Ordered', #['Ordered', 'Plain'],
+	cb_settings = {'iterations' : [700, 1200], #[700, 1200], # [low, high]
+					'learning_rate' : [0.001, 0.1], #[0.001, 0.1], # Same as 'iterations'
+					'depth' : [9,10], #[9,10],
+					'boosting_type' : ['Ordered', 'Plain'], #['Ordered', 'Plain'],
 					'l2_leaf_reg' : 0.001,
 					'loss_function' : 'RMSE',
 					'allow_writing_files' : False,
@@ -51,19 +58,20 @@ def run():
 					"model_name" : "CatBoost",}
 
 
+	X_train, X_test, y_train, y_test = load_X_y(**settings)
+
 	myCatBoostModel = CatBoostModel(**{**cb_settings,
 		                                          **settings})
 
 
 	# Training the model
-	myCatBoostModel._construct_model(X_train, X_test, y_train, y_test)
-	myCatBoostModel.run(X_train, X_test, y_train, y_test)
+	# myCatBoostModel._construct_model(X_train, X_test, y_train, y_test)
+	# myCatBoostModel.run(X_train, X_test, y_train, y_test)
 
 
 	# Finding the best hyperparameters:
-	# myCatBoostModel._input_X_y(X_train, X_test, y_train, y_test)
-	# myCatBoostModel.optimize(n_trials=100)
-
+	myCatBoostModel._input_X_y(X_train, X_test, y_train, y_test)
+	myCatBoostModel.optimize(n_trials=100)
 
 
 	# 2-2: RandomForest
@@ -79,10 +87,13 @@ def run():
 
 	# 				}
 
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
+
 	# myRFModel = RFModel(**{**rf_settings,
 	# 									**settings})
 	# myRFModel._construct_model()
 	# myRFModel.run(X_train, X_test, y_train, y_test)
+
 
 	# 2-3: DNN
 
@@ -108,11 +119,13 @@ def run():
 	# 		  'warm_up' : False,
 	# 		  'model_name' : 'DNN',}
 
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
 			  
 	# myDNNModel = DNNModel(**{**DNN_settings,
 	# 										**settings})
 	# myDNNModel._construct_model(X_train)
 	# myDNNModel.run(X_train, X_test, y_train, y_test)
+
 
 	# 2-4: LSTM
 
@@ -140,6 +153,8 @@ def run():
 	# 		  'warm_up' : False,
 	# 		  'model_name' : 'LSTM',}
 
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
+
 	# myLSTMModel = LSTMModel(**{**LSTM_settings,
 	# 										**settings})
 	# X_train, X_test = reshape_X(X_train, X_test, **settings)
@@ -147,7 +162,41 @@ def run():
 	# myLSTMModel.run(X_train, X_test, y_train, y_test)
 
 
-	# 2-5: XGBoost
+	# 2-5: GRU
+
+	# GRU_settings = {'GRU_model_directory' : './SavedModels',
+	# 		  'layers' : [15,30],
+	# 		  'input_activation_func' : 'relu',
+	# 		  'hidden_activation_func' : 'relu',
+	# 		  'final_activation_func' : 'linear',
+	# 		  'loss_func' : 'mean_squared_error',
+	# 		  'epochs' : 30,
+	# 		  'min_delta' : 0.00001,
+	# 		  'patience' : 10,
+	# 	      'batch_size' : 32,
+	# 		  'should_early_stop' : False,
+	# 		  'should_checkpoint' : False,
+	# 	      'regul_type' : 'l2',
+	# 		  'act_regul_type' : 'l1',
+	# 		  'reg_param' : 0.01,
+	# 		  'dropout' : 0.2,
+	# 		  'optimizer' : 'adam',
+	# 		  'random_state' : 42,
+	# 		  'split_size' : 0.2,
+	# 		  'output_dim' : 1,
+	# 		  'warm_up' : False,
+	# 		  'model_name' : 'GRU',}
+
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
+
+	# myGRUModel = GRUModel(**{**GRU_settings,
+	# 										**settings})
+	# X_train, X_test = reshape_X(X_train, X_test, **settings)
+	# myGRUModel._construct_model(X_train)
+	# myGRUModel.run(X_train, X_test, y_train, y_test)
+
+
+	# 2-6: XGBoost
 
 	# xgb_settings = {'n_estimators' : 1000,
 	# 				'max_depth' : 7,
@@ -156,6 +205,7 @@ def run():
 	# 				'n_jobs' : -1,
 	# 				"model_name" : "XGBoost",}
 
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
 
 	# myXGBoostModel = XGBoostModel(**{**xgb_settings,
 	# 	                                          **settings})
@@ -163,19 +213,36 @@ def run():
 	# myXGBoostModel.run(X_train, X_test, y_train, y_test)
 
 
-
-	# 2-6: Lasso
+	# 2-7: Lasso
 
 	# lasso_settings = {'alpha' : 0.001,
 	# 				'max_iter' : 1000,
 	# 				'tol' : 0.0001,
 	# 				'model_name' : "Lasso",}
 
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
 
 	# myLassoModel = LassoModel(**{**lasso_settings,
 	# 	                                          **settings})
 	# myLassoModel._construct_model()
 	# myLassoModel.run(X_train, X_test, y_train, y_test)
+
+
+
+
+
+
+	# Step3-Empirical Models:
+	
+	# empirical_settings = {'model_name' : 'Empirical-',
+	# "empirical_method": "R", # "HS" , "PT" , "R"
+
+	# 				}
+
+
+	# myDailyData = ApplyEmpiricalModels()
+	# myDailyData.test_empirical_models(**{**empirical_settings,
+	# 	                                          **settings})
 
 
 
