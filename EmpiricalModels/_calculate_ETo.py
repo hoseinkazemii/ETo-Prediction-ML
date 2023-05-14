@@ -1,17 +1,22 @@
 from utils import Logger
+from ._seasonal_split import _seasonal_split
+from ._split_data import _split_data
 from .RegressionReport import evaluate_regression
 
+import pandas as pd
 import os
 import math
 from datetime import datetime
 
 
-def _calculate_ETo(df_test, **params):
+def _calculate_ETo(**params):
+
 	empirical_method = params.get("empirical_method")
 	logger = params.get('logger')
 	verbose = params.get("verbose")
 	model_name = params.get("model_name")
-	empirical_method = params.get('empirical_method')
+	seasonal = params.get('seasonal')
+
 	
 	if verbose:
 		print("Using empirical equations to calculate ETo...")
@@ -27,17 +32,26 @@ def _calculate_ETo(df_test, **params):
 
 	log = Logger(address = f"{report_directory}/Log.log")
 
+	df_test = pd.read_csv('./Data/Final_Dataset/' + 'final_dataset.csv')
+
+	# Split data based on different seasons
+
+	df_test = _split_data(df_test, **params)
+
+	if seasonal:
+		df_test = _seasonal_split(df_test, **params)
+
 	y_pred_test = []
 	y_test = list(df_test['ETo'])
 
 	if empirical_method == "HS":
 		
 		Gsc = 0.082
-		latitude = 38.535694
-		phi = (latitude*math.pi)/180
 
 		for i in df_test.index:
-
+			
+			latitude = df_test.loc[i,'Latitude']
+			phi = (latitude*math.pi)/180
 			J = df_test.loc[i,'Jul']
 			T_avg = df_test.loc[i,'Avg_Temp']
 			T_max = df_test.loc[i,'Max_Temp']

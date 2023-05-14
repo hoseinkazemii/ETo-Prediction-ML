@@ -19,15 +19,15 @@ def _construct_model_for_optimizer(trial, **params):
 
 
 	param = {"iterations" : trial.suggest_int("iterations", iterations[0], iterations[1]),
-	"learning_rate" : trial.suggest_float("learning_rate", learning_rate[0], learning_rate[1], log=True),
 	"depth" : trial.suggest_int("depth", depth[0], depth[1]),
+	"learning_rate" : learning_rate, #trial.suggest_float("learning_rate", learning_rate[0], learning_rate[1], log=True)
 	"l2_leaf_reg" : l2_leaf_reg,
 	"allow_writing_files" : allow_writing_files,
 	"eval_metric" : eval_metric,
 	"task_type" : task_type,
 	"random_seed" : random_seed,
 	"verbose" : verbose_cb,
-	"boosting_type" : trial.suggest_categorical("boosting_type", boosting_type),
+	"boosting_type" : boosting_type, #trial.suggest_categorical("boosting_type", boosting_type),
 	"thread_count" : thread_count,
 	}
 

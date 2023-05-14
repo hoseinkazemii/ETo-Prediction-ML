@@ -7,11 +7,7 @@ def _load_model(**params):
 	model_name = params.get('model_name')
 
 	# load json and create model
-	if should_checkpoint:
-		model_type = 'BestModel'
-	else:
-		model_type = 'SavedModel'
 
-	model = load_model(DNN_model_directory + "/" + f"{model_name}-{model_type}.h5")
+	model = load_model(DNN_model_directory + "/" + f"{model_name}.h5")
 
 	return model

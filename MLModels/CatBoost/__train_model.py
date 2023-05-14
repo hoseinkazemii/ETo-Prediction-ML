@@ -8,11 +8,14 @@ def train_model(X_train, X_test, y_train, y_test, **params):
 	log = params.get("log")
 	model = params.get('model')
 	verbose = params.get('verbose')
+	model_directory = params.get("model_directory")
 	model_name = params.get("model_name")
 	report_directory = params.get("report_directory")
+	warm_up = params.get("warm_up")
 
 	if verbose:
 		print ("Trying to fit to the data...")
+
 
 	model.fit(X_train, y_train, plot=True)
 

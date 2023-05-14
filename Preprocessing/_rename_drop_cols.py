@@ -9,12 +9,8 @@ def rename_drop_cols(df, **params):
 		print('renaming the cols, dropping unnecessaries, converting to datetime, and dropping nulls...')
 
 
-	if SolRad_daily:
-		df.drop(['CIMIS Region', 'qc', 'qc.1'], axis=1, inplace=True)
-		
-	else:
-		df.drop(['CIMIS Region', 'qc', 'qc.1', 'Jul'], axis=1, inplace=True)
-	
+	df.drop(['CIMIS Region', 'qc', 'qc.1'], axis=1, inplace=True)
+			
 	df.rename(columns={'Stn Id': 'StnId', 'Stn Name': 'StnName',
 					   'Sol Rad (W/sq.m)': 'SolRad', 'PM ETo (mm)': 'ETo',
 					   'Hour (PST)': 'Hour'}, inplace=True)

@@ -6,5 +6,4 @@ def _save_model(**params):
 
 	save_address = f"{DNN_model_directory}/"
 
-	model.save(save_address + f"{model_name}-SavedModel.h5", save_format = 'h5')
-	
+	model.save(save_address + f"{model_name}.h5", save_format = 'h5')

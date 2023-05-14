@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 from ._cyclic_datetime_julian_date import _cyclic_datetime_julian_date
+from ._seasonal_split import _seasonal_split
 
 
 def split_data_and_deal_with_zeros(**params):
@@ -23,7 +24,7 @@ def split_data_and_deal_with_zeros(**params):
 	data_path_hourly = params.get("data_path_hourly")
 	data_path_daily = params.get("data_path_daily")
 	data_path_hourly_for_run = params.get("data_path_hourly_for_run")
-	data_path_daily_for_run = params.get("data_path_daily_for_run")
+	seasonal = params.get("seasonal")
 
 	if verbose:
 		if strategy_for_zeros == 'row_mean':
@@ -39,21 +40,27 @@ def split_data_and_deal_with_zeros(**params):
 
 
 	if SolRad_daily:
-		df = pd.read_csv(data_path_daily_for_run+'final_dataset.csv')
-		df['SolRad_daily_avg'] = df.iloc[:,1:25].sum(axis=1)/24
-		df = df[['StnId','SolRad_daily_avg','ETo_sum_day','Jul','Day','Month','Year']]
+		df = pd.read_csv(data_path_hourly_for_run+'final_dataset.csv')
+		df['SolRad_daily_avg'] = df.iloc[:,2:26].sum(axis=1)/24
+		df = df[['StnId','SolRad_daily_avg','ETo_sum_day','Jul']]
 		df = _cyclic_datetime_julian_date(df, 'Jul')
+
+		if seasonal:
+			df = _seasonal_split(df, **params)
 
 
 	elif not SolRad_daily:
 		df = pd.read_csv(data_path_hourly_for_run+'final_dataset.csv')
 
+		if seasonal:
+			df = _seasonal_split(df, **params)
+
 		if dealing_with_zeros_whole_dataset:
 
 			if how_to_compute_daily_avg == 'without_zeros':
-				df[df.drop(columns=['StnId','ETo_sum_day'], axis=1) == 0] = np.nan
-				df['SolRad_daily_avg'] = df.drop(columns=['StnId','ETo_sum_day'], axis=1).mean(axis=1)
-			
+				df[df.drop(columns=['StnId','ETo_sum_day','Jul'], axis=1) == 0] = np.nan
+				df['SolRad_daily_avg'] = df.drop(columns=['StnId','ETo_sum_day','Jul'], axis=1).mean(axis=1)
+
 			elif how_to_compute_daily_avg == 'with_zeros':
 				df['SolRad_daily_avg'] = df.iloc[:, 1:25].mean(axis=1)
 				df[df.drop(columns=['StnId','ETo_sum_day'], axis=1) == 0] = np.nan
@@ -70,9 +77,12 @@ def split_data_and_deal_with_zeros(**params):
 
 		  		#Keep Features with highest Feature Importance:
 		  		df.drop(columns=['100','200','300','400','500','1100',
-					'1200','1400','1500','1600','1700','1800',
+					'1300','1400','1500','1600','1700','1800',
 					'1900','2000','2100','2200','2300','2400'],
 					axis=1, inplace=True)	
+		  		df.dropna(axis=0, inplace=True, 
+		  			subset=[ '600', '700', '800',
+		  			'900', '1000', '1200','ETo_sum_day'])
 				
 
 			elif dropping_cols_strategy=='correlation':
@@ -80,23 +90,27 @@ def split_data_and_deal_with_zeros(**params):
 	  			#Keep Features with highest correlation with ETo_sum_day
 				if correlation_method == 'pearson_':
 					df.drop(columns=['100','200','300','400','500','600',
-			                 '1300','1400','1500','1600','1700','1800',
+			                 '700','1400','1500','1600','1700','1800',
 			                 '1900','2000','2100','2200','2300','2400'],
 			                  axis=1, inplace=True)
+					df.dropna(axis=0, inplace=True,
+						subset=['800','900','1000','1100','1200','1300','ETo_sum_day'])
 
 				elif correlation_method == 'mutual_info':
 					df.drop(columns=['100','200','300','400','500',
 			                 '600','700','1400','1500','1600','1700','1800',
 			                 '1900','2000','2100','2200','2300','2400'],
 			                  axis=1, inplace=True)
-
+					df.dropna(axis=0, inplace=True,
+						subset=['800','900','1000','1100','1200','1300','ETo_sum_day'])
 
 				elif correlation_method == 'spearman_':
-					# This is same as 'pearson_' correlation
 					df.drop(columns=['100','200','300','400','500','600',
 			                 '1300','1400','1500','1600','1700','1800',
 			                 '1900','2000','2100','2200','2300','2400'],
-			                  axis=1, inplace=True)	
+			                  axis=1, inplace=True)
+					df.dropna(axis=0, inplace=True,
+						subset=['700','800','900','1000','1100','1200','ETo_sum_day'])
 
 
 
@@ -143,13 +157,13 @@ def split_data_and_deal_with_zeros(**params):
 		# df_test = df[~df['StnId'].isin(training_stations)]
 
 
-	if SolRad_daily:	
-		X_train = df_train.drop(columns=['ETo_sum_day','Day','Month','Year','Jul'], axis=1)
-		X_test = df_test.drop(columns=['ETo_sum_day','Day','Month','Year','Jul'], axis=1)
+	if SolRad_daily:
+		X_train = df_train.drop(columns=['ETo_sum_day','StnId','Jul'], axis=1)
+		X_test = df_test.drop(columns=['ETo_sum_day','StnId','Jul'], axis=1)
 
 	else:
-		X_train = df_train.drop(columns=['Date','StnId','ETo_sum_day'], axis=1)
-		X_test = df_test.drop(columns=['Date','StnId','ETo_sum_day'], axis=1)
+		X_train = df_train.drop(columns=['Date','StnId','ETo_sum_day','Jul'], axis=1)
+		X_test = df_test.drop(columns=['Date','StnId','ETo_sum_day','Jul'], axis=1)
 
 	y_train = df_train['ETo_sum_day']
 	y_test = df_test['ETo_sum_day']

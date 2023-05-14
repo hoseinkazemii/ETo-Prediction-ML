@@ -9,59 +9,76 @@ def run():
 	settings = {
 	"data_path_hourly" : "./Data/For_The_Final_Run/Train_Set/",
 	"data_path_daily" : "./Data/For_The_Final_Run/Train_Set/",
+	"data_path_daily_for_empirical": "./Data/For_The_Final_Run/Test_Set/Daily/",
 	"data_path_hourly_for_run" : "./Data/Final_Dataset/Hourly_Run/",
-	"data_path_daily_for_run" : "./Data/Final_Dataset/Daily_Run/",
 	"verbose" : True,
 	"random_state" : 42,
 	"SolRad_threshold": 0,
 	"train_test_strategy": "station_based", # "yearly" , "station_based"
+	"seasonal":False,
+	"target_season": "Fall", # "Winter" , "Spring" , "Summer" , "Fall"
+	# "training_stations": [2,5,6,7,12,13,15,35,39,41,43,44,47,52,64,68,70,71,\
+ #  						  75,77,78,80,83,84,88,90,99,104,107,113,114,117,124,126,\
+	# 					  129,131,135,136,140,143,144,146,147,148,150,152,153,157,158,160,163,165,\
+	# 					  170,171,173,174,178,179,184,191,192,194,195,197,198,199,200,\
+ # 						  204,205,206,207,208,210,212,213,214,215,216,219,220,\
+	# 					  222,224,225,226,227,229,237,239,242,244,247,248,249,250,\
+	# 					  253,254], #FOR Optuna	
+	# "test_stations": [91,105,182,187,209,211,218,221,223,228,231,245,251,258,259,260], # FOR Optuna
+
+
 	"training_stations": [2,5,6,7,12,13,15,35,39,41,43,44,47,52,64,68,70,71,\
   						  75,77,78,80,83,84,88,90,91,99,104,105,107,113,114,117,124,126,\
 						  129,131,135,136,140,143,144,146,147,148,150,152,153,157,158,160,163,165,\
-						  170,171,173,174,178,179,182,184,187,191,192,193,194,195,197,198,199,200,\
- 						  202,204,205,206,207,208,209,210,211,212,213,214,215,216,218,219,220,221,\
-						  222,223,224,225,226,227,228,229,231,237,239,242,244,245,247,248,249,250,\
-						  251,253,254,258,259,260],
-	"test_stations":[87,103,106,116,125,217,232,236,240,241,243,252,257,261,262,263,264],
+						  170,171,173,174,178,179,182,184,187,191,192,194,195,197,198,199,200,\
+ 						  204,205,206,207,208,209,210,211,212,213,214,215,216,218,219,220,221,\
+						  222,223,224,225,226,227,228,229,231,237,239,242,244,245,247,248,249,250,251,\
+						  253,254,258,259,260],
+	# "test_stations":[87],
+	"test_stations":[87,103,106,125,193,202,217,236,240,241,243,252,257,261,262,263,264],
+
+
 	"years_for_test": 5,
 	"strategy_for_zeros": 'row_mean', # "row_mean" , "drop_column"
-	"dropping_cols_strategy": 'feature_importance', # "correlation" , "feature_importance"
-	"correlation_method":'mutual_info', # "mutual_info" , "pearson_" , "spearman_"
+	"dropping_cols_strategy": 'correlation', # "correlation" , "feature_importance"
+	"correlation_method":'spearman_', # "mutual_info" , "pearson_" , "spearman_"
 	"how_to_compute_daily_avg": 'without_zeros', # "with_zeros" , "without_zeros"
 	"dealing_with_zeros_whole_dataset": True,
 	"scaling_method": 'robust', # "min_max" , "standard" , "robust"
 	"outlier_quantile": 0.98,
 	"SolRad_daily": False,
+	"model_directory":"./SavedModels/",
+	"warm_up":True,
 
 	}
 
 	# Step1-Preprocessing:
 
-	# myData = PreprocessData()
-	# myData.preprocess_and_save_data(**settings)
+	myData = PreprocessData()
+	myData.preprocess_and_save_data(**settings)
 
 
 	# Step2-Training:
 	# 2-1: CatBoost
 
-	cb_settings = {'iterations' : [700, 1200], #[700, 1200], # [low, high]
-					'learning_rate' : [0.001, 0.1], #[0.001, 0.1], # Same as 'iterations'
-					'depth' : [9,10], #[9,10],
-					'boosting_type' : ['Ordered', 'Plain'], #['Ordered', 'Plain'],
-					'l2_leaf_reg' : 0.001,
-					'loss_function' : 'RMSE',
-					'allow_writing_files' : False,
-					'eval_metric' : "RMSE",
-					'task_type' : 'CPU',
-					'verbose_cb' : 400,
-					'thread_count' : -1,
-					"model_name" : "CatBoost",}
+	# cb_settings = {'iterations' : 1500, #[1200, 1600], # [low, high]
+	# 				'learning_rate' : 0.003, #[0.001, 0.1], # Same as 'iterations'
+	# 				'depth' : 9, #[9,11],
+	# 				'boosting_type' : 'Ordered', #['Ordered', 'Plain'],
+	# 				'l2_leaf_reg' : 0.001,
+	# 				'loss_function' : 'RMSE',
+	# 				'allow_writing_files' : False,
+	# 				'eval_metric' : "RMSE",
+	# 				'task_type' : 'CPU',
+	# 				'verbose_cb' : 300,
+	# 				'thread_count' : -1,
+	# 				"model_name" : "CatBoost",}
 
 
-	X_train, X_test, y_train, y_test = load_X_y(**settings)
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
 
-	myCatBoostModel = CatBoostModel(**{**cb_settings,
-		                                          **settings})
+	# myCatBoostModel = CatBoostModel(**{**cb_settings,
+	# 	                                          **settings})
 
 
 	# Training the model
@@ -70,14 +87,14 @@ def run():
 
 
 	# Finding the best hyperparameters:
-	myCatBoostModel._input_X_y(X_train, X_test, y_train, y_test)
-	myCatBoostModel.optimize(n_trials=100)
+	# myCatBoostModel._input_X_y(X_train, X_test, y_train, y_test)
+	# myCatBoostModel.optimize(n_trials=100)
 
 
 	# 2-2: RandomForest
 
-	# rf_settings = {'n_estimators' : 100,
-	# 				'max_depth' : 200,
+	# rf_settings = {'n_estimators' : 900,
+	# 				'max_depth' : 9,
 	# 				'min_samples_split' : 2,
 	# 				'min_samples_leaf' : 1,
 	# 				'max_features' : 'auto',
@@ -98,14 +115,14 @@ def run():
 	# 2-3: DNN
 
 	# DNN_settings = {'DNN_model_directory' : './SavedModels/DNN',
-	# 		  'layers' : [64,128,64],
+	# 		  'layers' : [16,32,16],
 	# 		  'input_activation_func' : 'relu',
 	# 		  'hidden_activation_func' : 'relu',
 	# 		  'loss_func' : 'mean_squared_error',
 	# 		  'epochs' : 30,
 	# 		  'min_delta' : 0.00001,
 	# 		  'patience' : 10,
-	# 	      'batch_size' : 32,
+	# 	      'batch_size' : 64,
 	# 		  'should_early_stop' : False,
 	# 		  'should_checkpoint' : False,
 	# 	      'regul_type' : 'l2',
@@ -116,7 +133,6 @@ def run():
 	# 		  'random_state' : 42,
 	# 		  'split_size' : 0.2,
 	# 		  'output_dim' : 1,
-	# 		  'warm_up' : False,
 	# 		  'model_name' : 'DNN',}
 
 	# X_train, X_test, y_train, y_test = load_X_y(**settings)
@@ -200,8 +216,8 @@ def run():
 
 	# xgb_settings = {'n_estimators' : 1000,
 	# 				'max_depth' : 7,
-	# 				# 'max_leaves' : 9,
-	# 				'learning_rate' : 0.1,
+	# 				'max_leaves' : 9,
+	# 				'learning_rate' : 0.3,
 	# 				'n_jobs' : -1,
 	# 				"model_name" : "XGBoost",}
 
@@ -228,7 +244,23 @@ def run():
 	# myLassoModel.run(X_train, X_test, y_train, y_test)
 
 
+	# 2-8: LightGBM
 
+	# lgbm_settings = {'n_estimators' : 2000,
+	# 				'max_depth' : 7,
+	# 				'max_leaves' : 9,
+	# 				'learning_rate' : 0.01,
+	# 				'num_leaves': 30,
+	# 				'n_jobs' : -1,
+	# 				'metric' : 'rmse',
+	# 				"model_name" : "LightGBM",}
+
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
+
+	# myLightGBMModel = LightGBMModel(**{**lgbm_settings,
+	# 	                                          **settings})
+	# myLightGBMModel._construct_model()
+	# myLightGBMModel.run(X_train, X_test, y_train, y_test)
 
 
 

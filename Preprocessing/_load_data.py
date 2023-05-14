@@ -3,6 +3,7 @@ import pandas as pd
 
 
 def load_data(**params):
+	
 	data_path_hourly = params.get("data_path_hourly")
 	verbose = params.get("verbose")
 

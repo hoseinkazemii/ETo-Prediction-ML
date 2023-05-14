@@ -13,7 +13,7 @@ def _construct_model(X_train, **params):
 	constructed = False
 	if warm_up:
 		try:
-			_load_model(**params)
+			model = _load_model(**params)
 			constructed = True
 			log.info("\n\n------------\nA trained model is loaded\n------------\n\n")
 		except OSError:

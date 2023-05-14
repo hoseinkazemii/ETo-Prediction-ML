@@ -1,10 +1,8 @@
 import matplotlib.pyplot as plt
 
 
-def plot(**params):
+def plot(history):
 	
-	history = params.get("history")
-
 	plt.plot(history.history['loss'], label='train')
 	plt.plot(history.history['val_loss'], label='validation')
 	plt.legend();

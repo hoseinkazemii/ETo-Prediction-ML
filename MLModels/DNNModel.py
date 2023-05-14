@@ -2,7 +2,6 @@ from .BaseMLModel import BaseMLModel
 from .DNN import _log_hyperparameters
 from .DNN import _construct_model
 from .DNN import train_model
-from .DNN import plot
 
 class DNNModel(BaseMLModel):
 
@@ -15,4 +14,3 @@ class DNNModel(BaseMLModel):
 
 	def run(self, X_train, X_test, y_train, y_test):
 		self.history = train_model(X_train, X_test, y_train, y_test, **self.__dict__)
-		plot(**self.__dict__)

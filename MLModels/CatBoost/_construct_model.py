@@ -14,18 +14,26 @@ def _construct_model(**params):
 	verbose_cb = params.get("verbose_cb")
 	boosting_type = params.get("boosting_type")
 	thread_count = params.get("thread_count")
+	warm_up = params.get("warm_up")
+	model_name = params.get("model_name")
+	model_directory = params.get("model_directory")
 
-	model = CatBoostRegressor(iterations = iterations,
-                           learning_rate = learning_rate,
-                           depth = depth,
-                           l2_leaf_reg = l2_leaf_reg,
-                           loss_function = loss_function,
-                           allow_writing_files= allow_writing_files,
-                           eval_metric = eval_metric,
-                           task_type = task_type,
-                           random_seed = random_seed,
-                           verbose = verbose_cb,
-                           boosting_type = boosting_type,
-                           thread_count = thread_count)
+	if warm_up:
+		model = CatBoostRegressor()
+		model.load_model(model_directory + f"{model_name}/{model_name}")
+
+	else:
+		model = CatBoostRegressor(iterations = iterations,
+	                           learning_rate = learning_rate,
+	                           depth = depth,
+	                           l2_leaf_reg = l2_leaf_reg,
+	                           loss_function = loss_function,
+	                           allow_writing_files= allow_writing_files,
+	                           eval_metric = eval_metric,
+	                           task_type = task_type,
+	                           random_seed = random_seed,
+	                           verbose = verbose_cb,
+	                           boosting_type = boosting_type,
+	                           thread_count = thread_count)
 
 	return model
