@@ -3,6 +3,7 @@ import numpy as np
 
 from ._cyclic_datetime_julian_date import _cyclic_datetime_julian_date
 from ._seasonal_split import _seasonal_split
+from ._drop_all_zero_rows import drop_all_zero_rows
 
 
 def split_data_and_deal_with_zeros(**params):
@@ -25,6 +26,7 @@ def split_data_and_deal_with_zeros(**params):
 	data_path_daily = params.get("data_path_daily")
 	data_path_hourly_for_run = params.get("data_path_hourly_for_run")
 	seasonal = params.get("seasonal")
+	include_zeros = params.get("include_zeros")
 
 	if verbose:
 		if strategy_for_zeros == 'row_mean':
@@ -38,32 +40,29 @@ def split_data_and_deal_with_zeros(**params):
 	# 	importance and different correlation methods')
 
 
+	df = pd.read_csv(data_path_hourly_for_run+'final_dataset.csv')
+	
+	if seasonal:
+		df = _seasonal_split(df, **params)
 
 	if SolRad_daily:
-		df = pd.read_csv(data_path_hourly_for_run+'final_dataset.csv')
 		df['SolRad_daily_avg'] = df.iloc[:,2:26].sum(axis=1)/24
 		df = df[['StnId','SolRad_daily_avg','ETo_sum_day','Jul']]
 		df = _cyclic_datetime_julian_date(df, 'Jul')
+		df = drop_all_zero_rows(df, **params)
 
-		if seasonal:
-			df = _seasonal_split(df, **params)
+	else:
+		df = drop_all_zero_rows(df, **params)
 
-
-	elif not SolRad_daily:
-		df = pd.read_csv(data_path_hourly_for_run+'final_dataset.csv')
-
-		if seasonal:
-			df = _seasonal_split(df, **params)
-
-		if dealing_with_zeros_whole_dataset:
-
+		if include_zeros:
 			if how_to_compute_daily_avg == 'without_zeros':
 				df[df.drop(columns=['StnId','ETo_sum_day','Jul'], axis=1) == 0] = np.nan
 				df['SolRad_daily_avg'] = df.drop(columns=['StnId','ETo_sum_day','Jul'], axis=1).mean(axis=1)
 
-			elif how_to_compute_daily_avg == 'with_zeros':
-				df['SolRad_daily_avg'] = df.iloc[:, 1:25].mean(axis=1)
-				df[df.drop(columns=['StnId','ETo_sum_day'], axis=1) == 0] = np.nan
+
+			# elif how_to_compute_daily_avg == 'with_zeros':
+			# 	df['SolRad_daily_avg'] = df.iloc[:, 1:25].mean(axis=1)
+			# 	df[df.drop(columns=['StnId','ETo_sum_day'], axis=1) == 0] = np.nan
 
 
 			for col in df.columns:		
@@ -72,6 +71,9 @@ def split_data_and_deal_with_zeros(**params):
 
 			df.drop(columns=['SolRad_daily_avg'], axis=1, inplace=True)
 
+
+		
+		else:
 
 			if dropping_cols_strategy=='feature_importance':
 
@@ -115,46 +117,23 @@ def split_data_and_deal_with_zeros(**params):
 
 
 	#training dataset
-	if train_test_strategy == "yearly":
-		df_train = df[df['Year'] <= df.Year.max() - years_for_test]
-
-	elif train_test_strategy == "station_based":
+	if train_test_strategy == "station_based":
 		df_train = df[df['StnId'].isin(training_stations)]
-		
+
+	# elif train_test_strategy == "yearly":
+	# 	df_train = df[df['Year'] <= df.Year.max() - years_for_test]
 
 
 	#dropping outliers
 	df_train = df_train[df_train['ETo_sum_day'] <= df_train['ETo_sum_day'].quantile(outlier_quantile)]
 
-
-	if (strategy_for_zeros == 'row_mean') and (dealing_with_zeros_whole_dataset == False):
-
-		if how_to_compute_daily_avg == 'without_zeros':
-			df_train[df_train.drop(columns=['StnId','ETo_sum_day'], axis=1) == 0] = np.nan
-			df_train['SolRad_daily_avg'] = df_train.drop(columns=['StnId','ETo_sum_day','Day','Month','Year'], axis=1).mean(axis=1) 
-
-		elif how_to_compute_daily_avg == 'with_zeros':
-			df_train['SolRad_daily_avg'] = df_train.iloc[:, 1:25].mean(axis=1)
-			df_train[df_train.drop(columns=['StnId','ETo_sum_day'], axis=1) == 0] = np.nan
-
-
-		for col in df_train.columns:		
-			df_train[col].fillna(df_train['SolRad_daily_avg'], inplace=True)
-
-		df_train.drop(columns=['SolRad_daily_avg'], axis=1, inplace=True)
-
-
-	elif strategy_for_zeros == 'drop_column':
-		df_train[df_train.drop(columns=['ETo_sum_day'], axis=1) == 0] = np.nan
-		df_train = df_train.dropna(how='all', axis=1)
-
-
-	if train_test_strategy == "yearly":
-		df_test = df[df['Year'] > df.Year.max() - years_for_test]
-
-	elif train_test_strategy == "station_based":
+	if train_test_strategy == "station_based":
 		df_test = df[df['StnId'].isin(test_stations)]
-		# df_test = df[~df['StnId'].isin(training_stations)]
+
+	# elif train_test_strategy == "yearly":
+	# 	df_test = df[df['Year'] > df.Year.max() - years_for_test]
+
+
 
 
 	if SolRad_daily:

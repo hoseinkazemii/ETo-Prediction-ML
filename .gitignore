@@ -129,6 +129,8 @@ dmypy.json
 .pyre/
 
 *.csv
+*.joblib
+*.h5
 
 test.py/
 

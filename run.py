@@ -2,7 +2,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from Preprocessing import *
-from MLModels import *
+# from MLModels import *
 # from EmpiricalModels import *
 
 def run():
@@ -39,14 +39,14 @@ def run():
 
 
 	"years_for_test": 5,
+	"include_zeros": True,
 	"strategy_for_zeros": 'row_mean', # "row_mean" , "drop_column"
 	"dropping_cols_strategy": 'correlation', # "correlation" , "feature_importance"
 	"correlation_method":'spearman_', # "mutual_info" , "pearson_" , "spearman_"
 	"how_to_compute_daily_avg": 'without_zeros', # "with_zeros" , "without_zeros"
-	"dealing_with_zeros_whole_dataset": True,
 	"scaling_method": 'robust', # "min_max" , "standard" , "robust"
 	"outlier_quantile": 0.98,
-	"SolRad_daily": False,
+	"SolRad_daily": True,
 	"model_directory":"./SavedModels/",
 	"warm_up":True,
 
