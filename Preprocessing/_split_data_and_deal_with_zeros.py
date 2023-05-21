@@ -134,8 +134,6 @@ def split_data_and_deal_with_zeros(**params):
 	# 	df_test = df[df['Year'] > df.Year.max() - years_for_test]
 
 
-
-
 	if SolRad_daily:
 		X_train = df_train.drop(columns=['ETo_sum_day','StnId','Jul'], axis=1)
 		X_test = df_test.drop(columns=['ETo_sum_day','StnId','Jul'], axis=1)

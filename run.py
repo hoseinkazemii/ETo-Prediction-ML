@@ -2,7 +2,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 from Preprocessing import *
-# from MLModels import *
+from MLModels import *
 # from EmpiricalModels import *
 
 def run():
@@ -15,10 +15,10 @@ def run():
 	"random_state" : 42,
 	"SolRad_threshold": 0,
 	"train_test_strategy": "station_based", # "yearly" , "station_based"
-	"seasonal":False,
-	"target_season": "Fall", # "Winter" , "Spring" , "Summer" , "Fall"
+	"seasonal":True,
+	"target_season": "Winter", # "Winter" , "Spring" , "Summer" , "Fall"
 	# "training_stations": [2,5,6,7,12,13,15,35,39,41,43,44,47,52,64,68,70,71,\
- #  						  75,77,78,80,83,84,88,90,99,104,107,113,114,117,124,126,\
+ #  					  75,77,78,80,83,84,88,90,99,104,107,113,114,117,124,126,\
 	# 					  129,131,135,136,140,143,144,146,147,148,150,152,153,157,158,160,163,165,\
 	# 					  170,171,173,174,178,179,184,191,192,194,195,197,198,199,200,\
  # 						  204,205,206,207,208,210,212,213,214,215,216,219,220,\
@@ -39,7 +39,7 @@ def run():
 
 
 	"years_for_test": 5,
-	"include_zeros": True,
+	"include_zeros": False,
 	"strategy_for_zeros": 'row_mean', # "row_mean" , "drop_column"
 	"dropping_cols_strategy": 'correlation', # "correlation" , "feature_importance"
 	"correlation_method":'spearman_', # "mutual_info" , "pearson_" , "spearman_"
@@ -61,9 +61,9 @@ def run():
 	# Step2-Training:
 	# 2-1: CatBoost
 
-	# cb_settings = {'iterations' : 1500, #[1200, 1600], # [low, high]
+	# cb_settings = {'iterations' : 1600, #[1200, 1600], # [low, high]
 	# 				'learning_rate' : 0.003, #[0.001, 0.1], # Same as 'iterations'
-	# 				'depth' : 9, #[9,11],
+	# 				'depth' : 10, #[9,11],
 	# 				'boosting_type' : 'Ordered', #['Ordered', 'Plain'],
 	# 				'l2_leaf_reg' : 0.001,
 	# 				'loss_function' : 'RMSE',
@@ -81,7 +81,7 @@ def run():
 	# 	                                          **settings})
 
 
-	# Training the model
+	# # # Training the model
 	# myCatBoostModel._construct_model(X_train, X_test, y_train, y_test)
 	# myCatBoostModel.run(X_train, X_test, y_train, y_test)
 
@@ -93,7 +93,7 @@ def run():
 
 	# 2-2: RandomForest
 
-	# rf_settings = {'n_estimators' : 900,
+	# rf_settings = {'n_estimators' : 1000,
 	# 				'max_depth' : 9,
 	# 				'min_samples_split' : 2,
 	# 				'min_samples_leaf' : 1,
@@ -246,21 +246,21 @@ def run():
 
 	# 2-8: LightGBM
 
-	# lgbm_settings = {'n_estimators' : 2000,
-	# 				'max_depth' : 7,
-	# 				'max_leaves' : 9,
-	# 				'learning_rate' : 0.01,
-	# 				'num_leaves': 30,
-	# 				'n_jobs' : -1,
-	# 				'metric' : 'rmse',
-	# 				"model_name" : "LightGBM",}
+	lgbm_settings = {'n_estimators' : 2000,
+					'max_depth' : 7,
+					'max_leaves' : 9,
+					'learning_rate' : 0.01,
+					'num_leaves': 30,
+					'n_jobs' : -1,
+					'metric' : 'rmse',
+					"model_name" : "LightGBM",}
 
-	# X_train, X_test, y_train, y_test = load_X_y(**settings)
+	X_train, X_test, y_train, y_test = load_X_y(**settings)
 
-	# myLightGBMModel = LightGBMModel(**{**lgbm_settings,
-	# 	                                          **settings})
-	# myLightGBMModel._construct_model()
-	# myLightGBMModel.run(X_train, X_test, y_train, y_test)
+	myLightGBMModel = LightGBMModel(**{**lgbm_settings,
+		                                          **settings})
+	myLightGBMModel._construct_model()
+	myLightGBMModel.run(X_train, X_test, y_train, y_test)
 
 
 
