@@ -1,5 +1,7 @@
 from utils import Logger
 from ._seasonal_split import _seasonal_split
+from ._add_elevation import add_elevation
+from ._add_latitude import add_latitude
 from ._split_data import _split_data
 from .RegressionReport import evaluate_regression
 
@@ -11,10 +13,12 @@ from datetime import datetime
 
 def _calculate_ETo(**params):
 
+	data_path_test_run = params.get("data_path_test_run")
 	empirical_method = params.get("empirical_method")
 	logger = params.get('logger')
 	verbose = params.get("verbose")
 	model_name = params.get("model_name")
+	# outlier_margin = params.get("outlier_margin")
 	seasonal = params.get('seasonal')
 
 	
@@ -32,7 +36,31 @@ def _calculate_ETo(**params):
 
 	log = Logger(address = f"{report_directory}/Log.log")
 
-	df_test = pd.read_csv('./Data/Final_Dataset/' + 'final_dataset.csv')
+	df_test = pd.read_csv(data_path_test_run+'final_dataset.csv')
+
+	df_test.dropna(axis=0, inplace=True, how='any',\
+	 subset=['100','200','300','400','500','600','700','800','900'\
+	 ,'1000','1100','1200','1300','1400','1500','1600','1700','1800','1900'\
+	 ,'2000','2100','2200','2300','2400'\
+	 ,'Jul','NetRad','ETo_sum_day','Max_Temp','Min_Temp','Avg_Temp','RelHum_Avg'])
+
+	# Create a list of columns to check
+	columns_to_check_zero = ['100','200','300','400','500','600','700','800','900'\
+	 ,'1000','1100','1200','1300','1400','1500','1600','1700','1800','1900'\
+	 ,'2000','2100','2200','2300','2400']
+
+	# Filter the dataframe to include only rows where the specified columns are not all zero
+	df_test = df_test.loc[~(df_test[columns_to_check_zero] == 0).all(axis=1)]
+
+	columns_to_keep = ['StnId','Jul','NetRad','Max_Temp','Min_Temp','Avg_Temp','RelHum_Avg','ETo_sum_day','Day','Month','Year']
+	df_test = df_test[columns_to_keep]
+
+
+	df_test = add_elevation(df_test, **params)
+	df_test = add_latitude(df_test, **params)
+
+
+	# df_test = df_test[df_test['ETo_sum_day'] <= outlier_margin]
 
 	# Split data based on different seasons
 
@@ -42,7 +70,7 @@ def _calculate_ETo(**params):
 		df_test = _seasonal_split(df_test, **params)
 
 	y_pred_test = []
-	y_test = list(df_test['ETo'])
+	y_test = list(df_test['ETo_sum_day'])
 
 	if empirical_method == "HS":
 		

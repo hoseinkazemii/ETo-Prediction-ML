@@ -1,21 +1,20 @@
 import warnings
 warnings.filterwarnings("ignore")
 
-from Preprocessing import *
-from MLModels import *
-# from EmpiricalModels import *
-
+# from Preprocessing import *
+# from MLModels import *
+from EmpiricalModels import *
+# 
 def run():
 	settings = {
-	"data_path_hourly" : "./Data/For_The_Final_Run/Train_Set/",
-	"data_path_daily" : "./Data/For_The_Final_Run/Train_Set/",
+	"data_path_for_ML_dataset_generation" : "./Data/For_The_Final_Run/Train_Set/",
 	"data_path_daily_for_empirical": "./Data/For_The_Final_Run/Test_Set/Daily/",
-	"data_path_hourly_for_run" : "./Data/Final_Dataset/Hourly_Run/",
+	"data_path_test_run" : "./Data/Final_Dataset/Test_Set/",
 	"verbose" : True,
 	"random_state" : 42,
 	"SolRad_threshold": 0,
 	"train_test_strategy": "station_based", # "yearly" , "station_based"
-	"seasonal":True,
+	"seasonal":False,
 	"target_season": "Winter", # "Winter" , "Spring" , "Summer" , "Fall"
 	# "training_stations": [2,5,6,7,12,13,15,35,39,41,43,44,47,52,64,68,70,71,\
  #  					  75,77,78,80,83,84,88,90,99,104,107,113,114,117,124,126,\
@@ -34,19 +33,19 @@ def run():
  						  204,205,206,207,208,209,210,211,212,213,214,215,216,218,219,220,221,\
 						  222,223,224,225,226,227,228,229,231,237,239,242,244,245,247,248,249,250,251,\
 						  253,254,258,259,260],
-	# "test_stations":[87],
+	# "test_stations":[263],
 	"test_stations":[87,103,106,125,193,202,217,236,240,241,243,252,257,261,262,263,264],
 
 
 	"years_for_test": 5,
-	"include_zeros": False,
-	"strategy_for_zeros": 'row_mean', # "row_mean" , "drop_column"
+	"include_zeros": True,
 	"dropping_cols_strategy": 'correlation', # "correlation" , "feature_importance"
-	"correlation_method":'spearman_', # "mutual_info" , "pearson_" , "spearman_"
+	"correlation_method":'pearson_', # "mutual_info" , "pearson_" , "spearman_"
 	"how_to_compute_daily_avg": 'without_zeros', # "with_zeros" , "without_zeros"
 	"scaling_method": 'robust', # "min_max" , "standard" , "robust"
-	"outlier_quantile": 0.98,
+	"outlier_margin": 15,
 	"SolRad_daily": True,
+	"Rso_included": False,
 	"model_directory":"./SavedModels/",
 	"warm_up":True,
 
@@ -54,9 +53,9 @@ def run():
 
 	# Step1-Preprocessing:
 
-	myData = PreprocessData()
-	myData.preprocess_and_save_data(**settings)
-
+	# myData = PreprocessData()
+	# myData.preprocess_and_save_data(**settings)
+ 
 
 	# Step2-Training:
 	# 2-1: CatBoost
@@ -81,7 +80,7 @@ def run():
 	# 	                                          **settings})
 
 
-	# # # Training the model
+	# # Training the model
 	# myCatBoostModel._construct_model(X_train, X_test, y_train, y_test)
 	# myCatBoostModel.run(X_train, X_test, y_train, y_test)
 
@@ -246,35 +245,35 @@ def run():
 
 	# 2-8: LightGBM
 
-	lgbm_settings = {'n_estimators' : 2000,
-					'max_depth' : 7,
-					'max_leaves' : 9,
-					'learning_rate' : 0.01,
-					'num_leaves': 30,
-					'n_jobs' : -1,
-					'metric' : 'rmse',
-					"model_name" : "LightGBM",}
+	# lgbm_settings = {'n_estimators' : 2000,
+	# 				'max_depth' : 7,
+	# 				'max_leaves' : 9,
+	# 				'learning_rate' : 0.01,
+	# 				'num_leaves': 30,
+	# 				'n_jobs' : -1,
+	# 				'metric' : 'rmse',
+	# 				"model_name" : "LightGBM",}
 
-	X_train, X_test, y_train, y_test = load_X_y(**settings)
+	# X_train, X_test, y_train, y_test = load_X_y(**settings)
 
-	myLightGBMModel = LightGBMModel(**{**lgbm_settings,
-		                                          **settings})
-	myLightGBMModel._construct_model()
-	myLightGBMModel.run(X_train, X_test, y_train, y_test)
+	# myLightGBMModel = LightGBMModel(**{**lgbm_settings,
+	# 	                                          **settings})
+	# myLightGBMModel._construct_model()
+	# myLightGBMModel.run(X_train, X_test, y_train, y_test)
 
 
 
 	# Step3-Empirical Models:
 	
-	# empirical_settings = {'model_name' : 'Empirical-',
-	# "empirical_method": "R", # "HS" , "PT" , "R"
+	empirical_settings = {'model_name' : 'Empirical-',
+	"empirical_method": "R", # "HS" , "PT" , "R"
 
-	# 				}
+					}
 
 
-	# myDailyData = ApplyEmpiricalModels()
-	# myDailyData.test_empirical_models(**{**empirical_settings,
-	# 	                                          **settings})
+	myDailyData = ApplyEmpiricalModels()
+	myDailyData.test_empirical_models(**{**empirical_settings,
+		                                          **settings})
 
 
 

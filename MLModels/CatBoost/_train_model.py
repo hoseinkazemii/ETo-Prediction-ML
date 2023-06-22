@@ -35,7 +35,8 @@ def train_model(**params):
 	y_pred_train = model.predict(X_train)
 	y_pred_test = model.predict(X_test)
 
-	mean_squared_error = evaluate_regression([f'OnTrain', X_train, y_train, y_pred_train],
+	mean_squared_error = evaluate_regression(
+		# [f'OnTrain', X_train, y_train, y_pred_train],
 											 [f'OnTest', X_test, y_test, y_pred_test],
 											 model = model,
 											 model_name = model_name,

@@ -28,11 +28,12 @@ def train_model(X_train, X_test, y_train, y_test, **params):
 
 		# model.save_model(model_directory + f"{model_name}/{model_name}.json")
 
+
 	y_pred_train = model.predict(X_train)
 	y_pred_test = model.predict(X_test)
 
 	evaluate_regression(
-		[f'OnTrain', X_train, y_train, y_pred_train],
+		# [f'OnTrain', X_train, y_train, y_pred_train],
 		[f'OnTest', X_test, y_test, y_pred_test],
 		model = model,
 		model_name = model_name,

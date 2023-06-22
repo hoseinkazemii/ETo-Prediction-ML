@@ -32,13 +32,13 @@ def scaler(X_train, X_test, y_train, y_test, **params):
 		y_test = y_scaler.transform(y_test.values.reshape(-1, 1))
 
 	elif scaling_method == 'robust':
-		x_scaler = RobustScaler().fit(X_train)
-		X_train = x_scaler.transform(X_train)
+		# x_scaler = RobustScaler().fit(X_train)
+		# X_train = x_scaler.transform(X_train)
 		x_scaler = RobustScaler().fit(X_test)
 		X_test = x_scaler.transform(X_test)
 
-		y_scaler = RobustScaler().fit(y_train.values.reshape(-1, 1))
-		y_train = y_scaler.transform(y_train.values.reshape(-1, 1))
+		# y_scaler = RobustScaler().fit(y_train.values.reshape(-1, 1))
+		# y_train = y_scaler.transform(y_train.values.reshape(-1, 1))
 		y_scaler = RobustScaler().fit(y_test.values.reshape(-1, 1))
 		y_test = y_scaler.transform(y_test.values.reshape(-1, 1))
 

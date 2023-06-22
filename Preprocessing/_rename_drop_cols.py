@@ -1,9 +1,9 @@
 import pandas as pd
 
 def rename_drop_cols(df, **params):
+	
 	verbose = params.get('verbose')
 	SolRad_threshold = params.get('SolRad_threshold')
-	SolRad_daily = params.get('SolRad_daily')
 
 	if verbose:
 		print('renaming the cols, dropping unnecessaries, converting to datetime, and dropping nulls...')
@@ -17,8 +17,10 @@ def rename_drop_cols(df, **params):
 
 	df['Date'] = df['Date'].apply(pd.to_datetime)
 
-	df.dropna(inplace=True)
-	
+	# df.interpolate(method='bfill',inplace=True,subset=['SolRad', 'ETo'])
+
+	# df.dropna(inplace=True)
+
 	df.loc[df["SolRad"] <= SolRad_threshold, "SolRad"] = 0
 
 	return df

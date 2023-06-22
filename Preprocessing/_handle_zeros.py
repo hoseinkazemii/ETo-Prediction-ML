@@ -1,63 +1,54 @@
-import pandas as pd
 import numpy as np
 
+# from ._drop_all_zero_rows import drop_all_zero_rows
+# from ._add_elevation import add_elevation
+# from ._add_longitude import add_longitude
 from ._cyclic_datetime_julian_date import _cyclic_datetime_julian_date
-from ._seasonal_split import _seasonal_split
-from ._drop_all_zero_rows import drop_all_zero_rows
+# from ._calculate_hourly_Rso import calculate_hourly_Rso
 
 
-def split_data_and_deal_with_zeros(**params):
-	#For preparing the dataset for the first run change the arguements to (df, **params). Also, change it in "PreprocessData.py"
-	# Also, comment this line: df = pd.read_csv(data_path_daily_for_run+'final_dataset.csv') or df = pd.read_csv(data_path_hourly_for_run+'final_dataset.csv')
-	
-	verbose = params.get("verbose")
-	train_test_strategy = params.get("train_test_strategy")
-	training_stations = params.get("training_stations")
-	test_stations = params.get("test_stations")
-	years_for_test = params.get("years_for_test")
-	strategy_for_zeros = params.get("strategy_for_zeros")
-	dealing_with_zeros_whole_dataset = params.get("dealing_with_zeros_whole_dataset")
+def handle_zeros(df, **params):
+
 	how_to_compute_daily_avg = params.get("how_to_compute_daily_avg")
-	outlier_quantile = params.get("outlier_quantile")
 	dropping_cols_strategy = params.get("dropping_cols_strategy")
+	verbose = params.get("verbose")
 	correlation_method = params.get("correlation_method")
-	SolRad_daily = params.get("SolRad_daily")
-	data_path_hourly = params.get("data_path_hourly")
-	data_path_daily = params.get("data_path_daily")
-	data_path_hourly_for_run = params.get("data_path_hourly_for_run")
-	seasonal = params.get("seasonal")
 	include_zeros = params.get("include_zeros")
+	SolRad_daily = params.get("SolRad_daily")
+	Rso_included = params.get("Rso_included")
 
-	if verbose:
-		if strategy_for_zeros == 'row_mean':
-			print("splitting data, filling zero values for SolRad in the train set with mean...")
-		elif strategy_for_zeros == 'drop_column':
-			print("splitting data, dropping columns with at least one zero for hourly SolRad...")
-
-
+		
 	# df.drop(columns=['Day','Month'], axis=1).to_csv('./FeatureSelection/final_dataset_for_training.csv', index=False)
 	# raise ValueError('Created final_dataset_for_training.csv For the feature selction methods, including CatBoost feature\
 	# 	importance and different correlation methods')
 
-
-	df = pd.read_csv(data_path_hourly_for_run+'final_dataset.csv')
-	
-	if seasonal:
-		df = _seasonal_split(df, **params)
+	# df = add_elevation(df, **params)
+	# df = add_longitude(df, **params)
 
 	if SolRad_daily:
 		df['SolRad_daily_avg'] = df.iloc[:,2:26].sum(axis=1)/24
 		df = df[['StnId','SolRad_daily_avg','ETo_sum_day','Jul']]
 		df = _cyclic_datetime_julian_date(df, 'Jul')
-		df = drop_all_zero_rows(df, **params)
+		# df = drop_all_zero_rows(df, **params)
 
 	else:
-		df = drop_all_zero_rows(df, **params)
+		# df = drop_all_zero_rows(df, **params)
 
 		if include_zeros:
 			if how_to_compute_daily_avg == 'without_zeros':
-				df[df.drop(columns=['StnId','ETo_sum_day','Jul'], axis=1) == 0] = np.nan
-				df['SolRad_daily_avg'] = df.drop(columns=['StnId','ETo_sum_day','Jul'], axis=1).mean(axis=1)
+				if Rso_included:
+					# df_Rso = calculate_hourly_Rso(df, **params)
+					df_Rso[df_Rso == 0] = np.nan
+					df_Rso['Rso_daily_avg'] = df_Rso.mean(axis=1)
+
+					for col in df_Rso.columns:		
+						df_Rso[col].fillna(df_Rso['Rso_daily_avg'], inplace=True)
+
+					df_Rso.drop(columns=['Rso_daily_avg'], axis=1, inplace=True)
+
+				else:
+					df[df.drop(columns=['StnId','ETo_sum_day','Jul'], axis=1) == 0] = np.nan
+					df['SolRad_daily_avg'] = df.drop(columns=['StnId','ETo_sum_day','Jul'], axis=1).mean(axis=1)
 
 
 			# elif how_to_compute_daily_avg == 'with_zeros':
@@ -70,7 +61,6 @@ def split_data_and_deal_with_zeros(**params):
 
 
 			df.drop(columns=['SolRad_daily_avg'], axis=1, inplace=True)
-
 
 		
 		else:
@@ -115,34 +105,4 @@ def split_data_and_deal_with_zeros(**params):
 						subset=['700','800','900','1000','1100','1200','ETo_sum_day'])
 
 
-
-	#training dataset
-	if train_test_strategy == "station_based":
-		df_train = df[df['StnId'].isin(training_stations)]
-
-	# elif train_test_strategy == "yearly":
-	# 	df_train = df[df['Year'] <= df.Year.max() - years_for_test]
-
-
-	#dropping outliers
-	df_train = df_train[df_train['ETo_sum_day'] <= df_train['ETo_sum_day'].quantile(outlier_quantile)]
-
-	if train_test_strategy == "station_based":
-		df_test = df[df['StnId'].isin(test_stations)]
-
-	# elif train_test_strategy == "yearly":
-	# 	df_test = df[df['Year'] > df.Year.max() - years_for_test]
-
-
-	if SolRad_daily:
-		X_train = df_train.drop(columns=['ETo_sum_day','StnId','Jul'], axis=1)
-		X_test = df_test.drop(columns=['ETo_sum_day','StnId','Jul'], axis=1)
-
-	else:
-		X_train = df_train.drop(columns=['Date','StnId','ETo_sum_day','Jul'], axis=1)
-		X_test = df_test.drop(columns=['Date','StnId','ETo_sum_day','Jul'], axis=1)
-
-	y_train = df_train['ETo_sum_day']
-	y_test = df_test['ETo_sum_day']
-
-	return X_train, X_test, y_train, y_test
+	return df
