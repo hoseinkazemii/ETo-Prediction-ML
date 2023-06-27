@@ -3,7 +3,7 @@ warnings.filterwarnings("ignore")
 
 # from Preprocessing import *
 # from MLModels import *
-from EmpiricalModels import *
+# from EmpiricalModels import *
 # 
 def run():
 	settings = {
@@ -265,15 +265,15 @@ def run():
 
 	# Step3-Empirical Models:
 	
-	empirical_settings = {'model_name' : 'Empirical-',
-	"empirical_method": "R", # "HS" , "PT" , "R"
+	# empirical_settings = {'model_name' : 'Empirical-',
+	# "empirical_method": "R", # "HS" , "PT" , "R"
 
-					}
+	# 				}
 
 
-	myDailyData = ApplyEmpiricalModels()
-	myDailyData.test_empirical_models(**{**empirical_settings,
-		                                          **settings})
+	# myDailyData = ApplyEmpiricalModels()
+	# myDailyData.test_empirical_models(**{**empirical_settings,
+	# 	                                          **settings})
 
 
 
