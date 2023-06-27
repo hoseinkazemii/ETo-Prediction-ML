@@ -131,6 +131,7 @@ dmypy.json
 *.csv
 *.joblib
 *.h5
+*.zip
 
 test.py/
 
