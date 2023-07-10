@@ -15,12 +15,11 @@ def rename_drop_cols(df, **params):
 					   'Sol Rad (W/sq.m)': 'SolRad', 'PM ETo (mm)': 'ETo',
 					   'Hour (PST)': 'Hour'}, inplace=True)
 
-	df['Date'] = df['Date'].apply(pd.to_datetime)
+	# df['Date'] = df['Date'].apply(pd.to_datetime)
 
 	# df.interpolate(method='bfill',inplace=True,subset=['SolRad', 'ETo'])
 
-	# df.dropna(inplace=True)
-
+	df.dropna(inplace=True)
 	df.loc[df["SolRad"] <= SolRad_threshold, "SolRad"] = 0
 
 	return df

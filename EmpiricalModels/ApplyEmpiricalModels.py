@@ -11,9 +11,9 @@ class ApplyEmpiricalModels():
 
 	def test_empirical_models(self, **params):
 
-		# df = _load_data_daily(**params)
-		# df = _make_datetime_cols(df, **params)
-		# df = _rename_cols(df, **params)
-		# df = _drop_nulls(df, **params)
-		# _save_data(df, **params)
-		_calculate_ETo(**params)
+		df = _load_data_daily(**params)
+		df = _make_datetime_cols(df, **params)
+		df = _rename_cols(df, **params)
+		df = _drop_nulls(df, **params)
+		_save_data(df, **params)
+		# _calculate_ETo(**params)

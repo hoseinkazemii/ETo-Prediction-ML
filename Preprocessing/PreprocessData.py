@@ -17,15 +17,15 @@ class PreprocessData():
 	def preprocess_and_save_data(self, **params):
 
 		# One-time Run-1:
-		# df = load_data(**params)
-		# df = rename_drop_cols(df, **params)
-		# df = groupby_date(df, **params)
-		# df = calculate_daily_Rso(df, **params)
+		df = load_data(**params)
+		df = rename_drop_cols(df, **params)
+		df = groupby_date(df, **params)
+		df = calculate_daily_Rso(df, **params)
 
 		# Run-2:
-		df = load_data_for_X_y(**params)
-		df = seasonal_split(df, **params)
-		df = handle_zeros(df, **params)
-		X_train, X_test, y_train, y_test = split_data(df, **params)
-		X_train, X_test = scaler(X_train, X_test, y_train, y_test, **params)
-		save_X_y(X_train, X_test, y_train, y_test, **params)
+		# df = load_data_for_X_y(**params)
+		# df = seasonal_split(df, **params)
+		# df = handle_zeros(df, **params)
+		# X_train, X_test, y_train, y_test = split_data(df, **params)
+		# X_train, X_test = scaler(X_train, X_test, y_train, y_test, **params)
+		# save_X_y(X_train, X_test, y_train, y_test, **params)
